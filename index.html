@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>摩斯密码转换器 | Morse Code Converter</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>摩斯密码转换器</h1>
+    <textarea id="inputText" placeholder="请输入要转换的文字..."></textarea>
+    <div class="buttons">
+      <button onclick="convertToMorse()">转换为摩斯密码</button>
+      <button onclick="convertToText()">还原为文字</button>
+      <button onclick="copyOutput()">复制结果</button>
+    </div>
+    <div id="output" class="output"></div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
