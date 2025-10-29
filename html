@@ -1,1 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>摩斯密码翻译器 | Morse Translator</title>
+  <style>
+    body {
+      font-family: "Segoe UI", "Noto Sans SC", sans-serif;
+      background: #f1f3f4;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
 
+    .container {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      display: flex;
+      align-items: stretch;
+      width: 90%;
+      max-width: 900px;
+      overflow: hidden;
+    }
+
+    .panel {
+      flex: 1;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel textarea {
+      flex: 1;
+      resize: none;
+      border: none;
+      outline: none;
+      font-size: 1.2rem;
+      padding: 10px;
+      background: #fafafa;
+      border-radius: 8px;
+      line-height: 1.5;
+    }
+
+    .middle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #e7ebee;
+      width: 80px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .middle:hover {
+      background: #d4d8db;
+    }
+
+    .middle span {
+      font-size: 2rem;
+      user-select: none;
+    }
+
+    h2 {
+      font-size: 1rem;
+      color: #5f6368;
+      margin-bottom: 10px;
+      text-align: left;
+    }
+
+    .output-box {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      background: #fafafa;
+      border-radius: 8px;
+      padding: 10px;
+      font-family: monospace;
+      font-size: 1.2rem;
+      overflow-y: auto;
+    }
+
+    .cell {
+      background: #fff;
+      border: 1px solid #d1d5db;
+      padding: 6px 10px;
+      border-radius: 6px;
+      min-width: 45px;
+      text-align: center;
+    }
+
+    .empty {
+      background: #e5e7eb;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="panel">
+      <h2 id="left-label">文字</h2>
+      <textarea id="inputText" placeholder="请输入文字..."></textarea>
+    </div>
+
+    <div class="middle" id="swapBtn" title="切换方向">
+      <span>⇆</span>
+    </div>
+
+    <div class="panel">
+      <h2 id="right-label">摩斯密码</h2>
+      <div id="outputBox" class="output-box"></div>
+    </div>
+  </div>
+
+  <script>
+    const morseCode = {
+      'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..',
+      'E': '.', 'F': '..-.', 'G': '--.', 'H': '....',
+      'I': '..', 'J': '.---', 'K': '-.-', 'L': '.-..',
+      'M': '--', 'N': '-.', 'O': '---', 'P': '.--.',
+      'Q': '--.-', 'R': '.-.', 'S': '...', 'T': '-',
+      'U': '..-', 'V': '...-', 'W': '.--', 'X': '-..-',
+      'Y': '-.--', 'Z': '--..',
+      '1': '.----', '2': '..---', '3': '...--', '4': '....-', '5': '.....',
+      '6': '-....', '7': '--...', '8': '---..', '9': '----.', '0': '-----',
+      ' ': '/'
+    };
+
+    const reverseMorse = Object.fromEntries(Object.entries(morseCode).map(([k, v]) => [v, k]));
+
+    let mode = "text-to-morse"; // 当前模式
+
+    const input = document.getElementById("inputText");
+    const output = document.getElementById("outputBox");
+    const swapBtn = document.getElementById("swapBtn");
+    const leftLabel = document.getElementById("left-label");
+    const rightLabel = document.getElementById("right-label");
+
+    function beautifyMorse(code) {
+      return code.replace(/\./g, '·').replace(/-/g, '—');
+    }
+
+    function convert() {
+      output.innerHTML = '';
+      const text = input.value.trim();
+
+      if (mode === "text-to-morse") {
+        for (let char of text.toUpperCase()) {
+          const cell = document.createElement("div");
+          cell.classList.add("cell");
+          if (morseCode[char]) {
+            cell.innerText = beautifyMorse(morseCode[char]);
+          } else if (char === ' ') {
+            cell.innerText = '';
+            cell.classList.add("empty");
+          } else {
+            cell.innerText = '?';
+          }
+          output.appendChild(cell);
+        }
+      } else {
+        const codes = text.replace(/·/g, '.').replace(/—/g, '-').split(' ');
+        for (let code of codes) {
+          const cell = document.createElement("div");
+          cell.classList.add("cell");
+          if (reverseMorse[code]) {
+            cell.innerText = reverseMorse[code];
+          } else if (code === '/') {
+            cell.innerText = '';
+            cell.classList.add("empty");
+          } else {
+            cell.innerText = '?';
+          }
+          output.appendChild(cell);
+        }
+      }
+    }
+
+    input.addEventListener("input", convert);
+
+    swapBtn.addEventListener("click", () => {
+      mode = (mode === "text-to-morse") ? "morse-to-text" : "text-to-morse";
+      leftLabel.textContent = (mode === "text-to-morse") ? "文字" : "摩斯密码";
+      rightLabel.textContent = (mode === "text-to-morse") ? "摩斯密码" : "文字";
+      input.value = "";
+      output.innerHTML = "";
+      input.placeholder = (mode === "text-to-morse") ? "请输入文字..." : "请输入摩斯密码（用空格分隔）...";
+    });
+  </script>
+</body>
+</html>
