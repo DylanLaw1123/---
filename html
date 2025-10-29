@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>摩斯密码转换器 | Morse Code Converter</title>
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background: #f0f4f8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background: white;
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      width: 450px;
+      text-align: center;
+    }
+    h1 {
+      margin-bottom: 1rem;
+      color: #1e293b;
+    }
+    textarea {
+      width: 100%;
+      height: 100px;
+      padding: 10px;
+      border: 1px solid #94a3b8;
+      border-radius: 8px;
+      resize: none;
+      font-size: 1rem;
+      margin-bottom: 1rem;
+    }
+    .buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+    button {
+      flex: 1;
+      margin: 0 5px;
+      padding: 10px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      background-color: #2563eb;
+      color: white;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    button:hover {
+      background-color: #1d4ed8;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+      gap: 6px;
+    }
+    .cell {
+      border: 1px solid #94a3b8;
+      border-radius: 6px;
+      padding: 8px;
+      background: #f8fafc;
+      font-family: monospace;
+      font-size: 1.1rem;
+    }
+    .empty {
+      background: #e2e8f0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>摩斯密码转换器</h1>
+    <textarea id="inputText" placeholder="请输入要转换的文字..."></textarea>
+    <div class="buttons">
+      <button onclick="convertToMorse()">转换为摩斯密码</button>
+      <button onclick="convertToText()">还原为文字</button>
+      <button onclick="copyOutput()">复制结果</button>
+    </div>
+    <div id="outputGrid" class="grid"></div>
+  </div>
+
+  <script>
+    const morseCode = {
+      'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..',
+      'E': '.', 'F': '..-.', 'G': '--.', 'H': '....',
+      'I': '..', 'J': '.---', 'K': '-.-', 'L': '.-..',
+      'M': '--', 'N': '-.', 'O': '---', 'P': '.--.',
+      'Q': '--.-', 'R': '.-.', 'S': '...', 'T': '-',
+      'U': '..-', 'V': '...-', 'W': '.--', 'X': '-..-',
+      'Y': '-.--', 'Z': '--..',
+      '1': '.----', '2': '..---', '3': '...--', '4': '....-',
+      '5': '.....', '6': '-....', '7': '--...', '8': '---..',
+      '9': '----.', '0': '-----',
+      ' ': '/'
+    };
+
+    const reverseMorse = Object.fromEntries(
+      Object.entries(morseCode).map(([k, v]) => [v, k])
+    );
+
+    function beautifyMorse(code) {
+      return code.replace(/\./g, '·').replace(/-/g, '—');
+    }
+
+    function convertToMorse() {
+      const text = document.getElementById('inputText').value.toUpperCase();
+      const grid = document.getElementById('outputGrid');
+      grid.innerHTML = '';
+      for (let char of text) {
+        let morse = morseCode[char];
+        const cell = document.createElement('div');
+        cell.classList.add('cell');
+        if (morse) {
+          cell.innerText = beautifyMorse(morse);
+        } else if (char === ' ') {
+          cell.innerText = ' ';
+          cell.classList.add('empty');
+        } else {
+          cell.innerText = '?';
+        }
+        grid.appendChild(cell);
+      }
+    }
+
+    function convertToText() {
+      const text = document.getElementById('inputText').value
+        .trim()
+        .replace(/·/g, '.')
+        .replace(/—/g, '-')
+        .split(' ');
+      const grid = document.getElementById('outputGrid');
+      grid.innerHTML = '';
+      for (let code of text) {
+        const cell = document.createElement('div');
+        cell.classList.add('cell');
+        if (reverseMorse[code]) {
+          cell.innerText = reverseMorse[code];
+        } else if (code === '/') {
+          cell.innerText = ' ';
+          cell.classList.add('empty');
+        } else {
+          cell.innerText = '?';
+        }
+        grid.appendChild(cell);
+      }
+    }
+
+    function copyOutput() {
+      const allCells = Array.from(document.querySelectorAll('.cell')).map(c => c.innerText);
+      const text = allCells.join(' ');
+      navigator.clipboard.writeText(text);
+      alert('已复制到剪贴板 ✅');
+    }
+  </script>
+</body>
+</html>
